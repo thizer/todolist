@@ -8,13 +8,19 @@ const REMOVE = 'remove';
 const MOVE = 'move';
 
 const GROUP = 'group';
-const FINISH = 'finish';
+const STATUS = 'status';
 
-const SET_FOLDER = 'set-folder';
+const GROUP_NAME = 'groupname';
+const JSON_DB = 'jsondb';
 
 String getHomePath() {
   Map<String, String> env = Platform.environment;
   return env.entries.firstWhere((o) => o.key == 'HOME').value;
+}
+
+String getUsername() {
+  Map<String, String> env = Platform.environment;
+  return env.entries.firstWhere((o) => o.key == 'USER').value;
 }
 
 bool checkArg(var arg) {

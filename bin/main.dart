@@ -14,9 +14,10 @@ main(List<String> args) {
   parser.addOption(ADD, abbr: 'a', help: 'Adicionar tarefa');
   parser.addOption(REMOVE, abbr: 'd', help: 'Remover uma tarefa');
   parser.addOption(MOVE, abbr: 'm', help: 'Trocar grupo de uma tarefa');
-  parser.addOption(GROUP, abbr: 'g', help: 'Informa o grupo onde listar ou adicionar');
-  parser.addOption(FINISH, abbr: 'f', help: 'Marca a tarefa escolhida como finalizada');
-  parser.addOption(SET_FOLDER, valueHelp: 'path', help: 'Aponta onde salvar as tarefas (json database file)');
+  parser.addOption(GROUP, abbr: 'g', defaultsTo: 'default', help: 'Informa o grupo onde listar ou adicionar');
+  parser.addOption(STATUS, abbr: 's', allowed: ['new', 'doing', 'done'], defaultsTo: 'new', help: 'Modifica o status da tarefa');
+  parser.addOption(GROUP_NAME, help: 'Um nome para adicionar suas tarefas pessoais');
+  parser.addOption(JSON_DB, valueHelp: 'json filename', help: 'Aponta onde salvar as tarefas (Arquivo JSON)');
 
   try {
 
