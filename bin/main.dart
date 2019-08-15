@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:mirrors';
 
 import 'package:args/args.dart';
 import 'package:todolist/todolist.dart';
@@ -10,11 +11,12 @@ main(List<String> args) {
 
   parser.addFlag(HELP, abbr: 'h', defaultsTo: false, negatable: false);
   parser.addFlag(LIST, abbr: 'l', defaultsTo: false, negatable: false, help: 'Listar tarefas');
-  parser.addOption(GROUP, abbr: 'g', help: 'Informa o grupo onde listar ou adicionar');
   parser.addOption(ADD, abbr: 'a', help: 'Adicionar tarefa');
   parser.addOption(REMOVE, abbr: 'd', help: 'Remover uma tarefa');
   parser.addOption(MOVE, abbr: 'm', help: 'Trocar grupo de uma tarefa');
-  parser.addOption('set-folder', valueHelp: 'path', help: 'Aponta onde salvar as tarefas (json database file)');
+  parser.addOption(GROUP, abbr: 'g', help: 'Informa o grupo onde listar ou adicionar');
+  parser.addOption(FINISH, abbr: 'f', help: 'Marca a tarefa escolhida como finalizada');
+  parser.addOption(SET_FOLDER, valueHelp: 'path', help: 'Aponta onde salvar as tarefas (json database file)');
 
   try {
 
@@ -33,8 +35,9 @@ main(List<String> args) {
     // Inicia o programa de fato
     TodoList(results);
 
-  } catch (e) {
-    print(e.toString());
+  } on Exception catch (e) {
+
+    print(e);
     print(parser.usage);
     exit(1);
   }

@@ -19,19 +19,28 @@ class TodoList {
 
   TodoList(this.args) {
 
-    init();
+    String setFolder = checkArg(this.args[SET_FOLDER]) ? this.args[SET_FOLDER] : null;
+    
+    init(setFolder);
+
+    // Quando troca o savepath o sistema termina
+    // @todo nao ta funcionando essa bixiga... ¬¬
+    if (setFolder != null && setFolder.isNotEmpty) {
+      exit(0);
+    }
+
     openDatabase();
 
-    if (checkArg(args[LIST])) {
+    if (checkArg(this.args[LIST])) {
       this.list();
 
-    } else if (checkArg(args[ADD])) {
+    } else if (checkArg(this.args[ADD])) {
       this.add();
 
-    } else if (checkArg(args[REMOVE])) {
+    } else if (checkArg(this.args[REMOVE])) {
       this.remove();
 
-    } else if (checkArg(args[MOVE])) {
+    } else if (checkArg(this.args[MOVE])) {
       this.move();
 
     } else {
@@ -52,15 +61,22 @@ class TodoList {
 
       // Cria arquivo e inclui o savepath
       configFile.createSync();
-      configFile.writeAsStringSync("savepath=$homePath");
-      this.savePath = homePath;
+      configFile.writeAsStringSync((newSavePath == null) ? "savepath=$homePath" : "savepath=$newSavePath");
     }
 
     var lines = configFile.readAsLinesSync();
     this.config = Config.fromStrings(lines);
     
+    // Troca savepath caso tenha sido informado
+    if (newSavePath != null && newSavePath.isNotEmpty) {
+      this.config.set('default', 'savepath', newSavePath);
+
+      // Salva alteracao
+      configFile.writeAsStringSync(this.config.toString());
+    }
+
     // Determina onde salvar o arquivo de banco de dados
-    this.savePath = this.savePath ?? config.get('default', 'savepath');
+    this.savePath = config.get('default', 'savepath');
   }
 
   void openDatabase() {
@@ -98,7 +114,14 @@ class TodoList {
   }
 
   void list() {
-    print('list');
+    print('Lista de tarefas');
+
+    print('');
+    print("Configurações");
+    print("Config file = "+getHomePath()+"/.todolist");
+    for (var i in config.items('default')) {
+      print(i.first+" = "+i.last);
+    }
   }
 
 }

@@ -1,11 +1,16 @@
 import 'dart:io';
 
 const HELP = 'help';
+
 const LIST = 'list';
-const GROUP = 'group';
 const ADD = 'add';
 const REMOVE = 'remove';
 const MOVE = 'move';
+
+const GROUP = 'group';
+const FINISH = 'finish';
+
+const SET_FOLDER = 'set-folder';
 
 String getHomePath() {
   Map<String, String> env = Platform.environment;
@@ -19,7 +24,7 @@ bool checkArg(var arg) {
     // Ja eh booleano, apenas retorna
     result = arg;
 
-  } else if (arg.toString().isNotEmpty) {
+  } else if (arg != null && arg.toString().isNotEmpty) {
 
     // Outro tipo qualquer, checa se esta vazio (como string)
     result = true;
