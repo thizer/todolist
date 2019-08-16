@@ -1,0 +1,12 @@
+Package: todolist
+Version: 1.0.0
+Architecture: all
+Source: /usr/local/bin/todolist
+Maintainer: Thizer <thizerdev@gmail.com>
+Uploaders: Thizer Apps <thizerdev@gmail.com>
+Sections: task, utils
+Priority: optional
+Build-Depends:
+Build-Conflicts: 
+Description: Gerencia simples tarefas
+Homepage: https://www.thizer.com
