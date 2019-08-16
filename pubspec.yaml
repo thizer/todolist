@@ -12,6 +12,7 @@ dependencies:
   ini: ^2.0.1
   json_annotation: ^3.0.0
   intl: ^0.15.8
+  colorize: ^2.0.0
 #  path: ^1.4.1
 
 dev_dependencies:

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:colorize/colorize.dart';
 import 'package:intl/intl.dart';
 
 import 'package:args/args.dart';
@@ -45,6 +46,17 @@ class TodoList {
 
     init(groupName: groupName);
     openDatabase();
+
+    if (this.args[ABOUT]) {
+      
+      print(Colorize("\nSobre este Software\n")..lightBlue());
+      print("Config file = "+getHomePath()+"/.todolist");
+      for (var i in config.items('default')) {
+        print(i.first+" = "+i.last);
+      }
+      print(Colorize("\nTodoList por Thizer\n")..white()..bgBlack());
+      exit(0);
+    }
 
     if (checkArg(this.args[LIST])) {
       this.list();
@@ -151,11 +163,59 @@ class TodoList {
   }
 
   void remove() {
-    print('remove');
+    
+    bool found = false;
+
+    // Loop sobre todos os grupos
+    for (Group group in this.database.group) {
+      
+      // Loop sobre as tarefas do grupo
+      for (Task task in group.tasks) {
+        if (task.id == this.args[REMOVE]) {
+
+          // Encontrou, remove e marca como encontrado
+          group.tasks.remove(task);
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) {
+      print(Colorize("\nTarefa '${this.args[REMOVE]}' não encontrada. Talvez já tenha sido apagada\n")..lightYellow());
+    }
+
+    list();
   }
 
   void move()  {
-    print('move');
+    bool found = false;
+
+    // Loop sobre todos os grupos
+    for (Group group in this.database.group) {
+      
+      // Loop sobre as tarefas do grupo
+      for (Task task in group.tasks) {
+        if (task.id == this.args[MOVE]) {
+
+          // Encontrou, remove e marca como encontrado
+          group.tasks.remove(task);
+
+          // Adiciona no novo grupo
+          Group newGroup = getOrCreateGroup(this.args[GROUP]);
+          newGroup.tasks.add(task);
+
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) {
+      print(Colorize("\nTarefa '${this.args[REMOVE]}' não encontrada. Talvez tenha sido apagada\n")..lightYellow());
+    }
+
+    list();
   }
 
   void list() {
@@ -179,12 +239,6 @@ class TodoList {
         }
       }
     }
-
-    // print("\nConfigurações");
-    // print("Config file = "+getHomePath()+"/.todolist");
-    // for (var i in config.items('default')) {
-    //   print(i.first+" = "+i.last);
-    // }
   }
 
   void imprimeTarefas(Group group) {
@@ -204,7 +258,7 @@ class TodoList {
 
       // Prepara descricao e depois printa a tarefa em si
       String desc = (task.description.isNotEmpty) ? '    \"${task.description}\"' : '';
-      print("$status #${task.id} ${df.format(task.created)} - ${task.title}\n"+desc);
+      print("$status ${task.id} ${df.format(task.created)} - ${task.title}\n"+desc);
     }
     print("");
   }

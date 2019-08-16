@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart' as crypto;
 
+const ABOUT = 'about';
 const HELP = 'help';
 
 const LIST = 'list';
