@@ -69,6 +69,9 @@ class TodoList {
 
     } else if (checkArg(this.args[MOVE])) {
       this.move();
+      
+    } else if (checkArg(this.args[STATUS])) {
+      this.status();
 
     } else {
       throw Exception('Não tenho bola de cristal, brod...');
@@ -220,45 +223,85 @@ class TodoList {
 
   void list() {
 
-    if (this.args[GROUP] != 'default') {
+    if (this.args[ALL]) {
 
-      // Foi informado o grupo onde listar as tarefas
+      // Mostrar todas as tarefas, de todo mundo
       for (Group group in this.database.group) {
-        if (group.name == this.args[GROUP]) {
-          imprimeTarefas(group);
-          break;
-        }
-      } 
+        imprimeTarefas(group);
+      }
+
     } else {
 
-      // Não foi informado grupo onde listar as tarefas então listamos
-      // as tarefas default e as do proprio usuario
-      for (Group group in this.database.group) {
-        if (group.name == 'default' || group.name == config.get('default', 'groupname')) {
-          imprimeTarefas(group);
+      if (this.args[GROUP] != 'default') {
+
+        // Foi informado o grupo onde listar as tarefas
+        for (Group group in this.database.group) {
+          if (group.name == this.args[GROUP]) {
+            imprimeTarefas(group);
+            break;
+          }
+        } 
+      } else {
+
+        // Não foi informado grupo onde listar as tarefas então listamos
+        // as tarefas default e as do proprio usuario
+        for (Group group in this.database.group) {
+          if (group.name == 'default' || group.name == config.get('default', 'groupname')) {
+            imprimeTarefas(group);
+          }
+        }
+
+      } // endelse
+    } // endelse
+  }
+
+  void status() {
+    if (this.args.rest.isEmpty) {
+      throw FormatException('Informe o id da tarefa que deseja alterar');
+    }
+
+    bool found = false;
+
+    // Loop sobre todos os grupos
+    for (Group group in this.database.group) {
+      
+      // Loop sobre as tarefas do grupo
+      for (Task task in group.tasks) {
+        if (task.id == this.args.rest.first) {
+
+          task.status = this.args[STATUS];
+          found = true;
+          break;
         }
       }
     }
+
+    if (!found) {
+      print(Colorize("\nTarefa '${this.args[REMOVE]}' não encontrada. Talvez tenha sido apagada\n")..lightYellow());
+    }
+
+    list();
   }
 
   void imprimeTarefas(Group group) {
 
     DateFormat df = DateFormat('yyyy-MM-dd');
-    print("----------------------------- ${group.name} -----------------------------");
+    print("\n----------------------------- "+(Colorize(group.name)..lightBlue()).toString()+" -----------------------------");
 
     for (Task task in group.tasks) {
 
       // Mostra 'icone' de acordo com status da tarefa
-      String status;
+      Colorize status;
       switch (task.status) {
-        case 'new': status = '[ ]'; break;
-        case 'doing': status = '[-]'; break;
-        case 'done': status = '[x]'; break;
+        case 'new': status = Colorize('[ ]')..lightYellow(); break;
+        case 'doing': status = Colorize('[-]')..lightRed(); break;
+        case 'done': status = Colorize('[x]'); break;
       }
 
       // Prepara descricao e depois printa a tarefa em si
-      String desc = (task.description.isNotEmpty) ? '    \"${task.description}\"' : '';
-      print("$status ${task.id} ${df.format(task.created)}\n    \"${task.title}\"\n"+desc);
+      String desc = (task.description.isNotEmpty) ? '    ${task.description}' : '';
+      Colorize title = Colorize("${task.title}")..lightGray();
+      print("$status ${task.id} ${df.format(task.created)}\n    ${title}\n"+desc);
     }
 
     print("");
