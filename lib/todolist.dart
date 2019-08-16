@@ -160,7 +160,12 @@ class TodoList {
 
   void add() {
     Group group = getOrCreateGroup(this.args[GROUP]);
-    group.tasks.add(Task(this.args[ADD], this.args.rest.join(' '), DateTime.now(), 'new'));
+    group.tasks.add(Task(
+      this.args[ADD],
+      this.args.rest.join(' '),
+      config.get('default', 'groupname').toString(),
+      2
+    ));
 
     this.list();
   }
@@ -313,7 +318,7 @@ class TodoList {
       // Prepara descricao e depois printa a tarefa em si
       String desc = (task.description.isNotEmpty) ? '    ${task.description}\n' : '';
       Colorize title = Colorize("${task.title}")..lightGray();
-      print("$status ${priority} ${title}\n    ${task.id} ${df.format(task.created)}\n"+desc);
+      print("$status ${priority} ${title}\n    ${task.id} ${df.format(task.created)} - Author: ${task.author}\n"+desc);
     }
   }
 

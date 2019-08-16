@@ -6,6 +6,11 @@ part 'database.g.dart';
 @JsonSerializable(explicitToJson: true)
 class Database {
 
+  // Fez alguma alteracao nessa classe?
+  // Rode o comando abaixo para atualizar seus correspondentes *.g.dart
+  //
+  // $ pub run build_runner build
+
   List<Group> group;
 
   Database(this.group);

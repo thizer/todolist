@@ -10,12 +10,14 @@ Task _$TaskFromJson(Map<String, dynamic> json) {
   return Task(
     json['title'] as String,
     json['description'] as String,
-    json['created'] == null ? null : DateTime.parse(json['created'] as String),
-    json['status'] as String,
+    json['author'] as String,
+    json['priority'] as int ?? 2,
   )
     ..id = json['id'] as String
-    ..priority = json['priority'] as int
-    ..author = json['author'] as String;
+    ..created = json['created'] == null
+        ? null
+        : DateTime.parse(json['created'] as String)
+    ..status = json['status'] as String ?? 'new';
 }
 
 Map<String, dynamic> _$TaskToJson(Task instance) => <String, dynamic>{
@@ -24,6 +26,6 @@ Map<String, dynamic> _$TaskToJson(Task instance) => <String, dynamic>{
       'description': instance.description,
       'created': instance.created?.toIso8601String(),
       'status': instance.status,
-      'priority': instance.priority,
       'author': instance.author,
+      'priority': instance.priority,
     };

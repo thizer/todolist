@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Acessa a pasta deste arquivo
+cd "$(dirname $0)"
+
+# compila o projeto para o standalone
+/usr/lib/dart/bin/dart2aot main.dart ../build/usr/local/bin/todolist.d/standalone
+
+# Copia novamente o dartaotruntime que pode ter sido atualizado
+cp /usr/lib/dart/bin/dartaotruntime ../build/usr/local/bin/todolist.d/dartaotruntime
+
+# Constroi o instalador debian
+sudo dpkg-deb -b ../build todolist.deb
+
+# Instala o bendito
+sudo dpkg -i todolist.deb
