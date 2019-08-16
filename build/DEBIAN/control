@@ -1,5 +1,5 @@
 Package: todolist
-Version: 1.0.0
+Version: 1.0.1
 Architecture: all
 Source: /usr/local/bin/todolist
 Maintainer: Thizer <thizerdev@gmail.com>
