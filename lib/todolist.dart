@@ -159,26 +159,23 @@ class TodoList {
   }
 
   void list() {
-    
-    DateFormat df = DateFormat('yyyy-MM-dd');
 
-    for (Group group in this.database.group) {
-      if (group.name == 'default' || group.name == config.get('default', 'groupname')) {
-        print("----------------${group.name}-----------------------------");
-        
-        for (Task task in group.tasks) {
+    if (this.args[GROUP] != 'default') {
 
-          String status;
+      // Foi informado o grupo onde listar as tarefas
+      for (Group group in this.database.group) {
+        if (group.name == this.args[GROUP]) {
+          imprimeTarefas(group);
+          break;
+        }
+      } 
+    } else {
 
-          switch (task.status) {
-            case 'new': status = '[ ]'; break;
-            case 'doing': status = '[-]'; break;
-            case 'done': status = '[x]'; break;
-          }
-
-          String desc = (task.description.isNotEmpty) ? '\n    \"${task.description}\"\n' : '\n';
-
-          print("$status #${task.id} ${df.format(task.created)} - ${task.title}"+desc);
+      // Não foi informado grupo onde listar as tarefas então listamos
+      // as tarefas default e as do proprio usuario
+      for (Group group in this.database.group) {
+        if (group.name == 'default' || group.name == config.get('default', 'groupname')) {
+          imprimeTarefas(group);
         }
       }
     }
@@ -188,6 +185,28 @@ class TodoList {
     // for (var i in config.items('default')) {
     //   print(i.first+" = "+i.last);
     // }
+  }
+
+  void imprimeTarefas(Group group) {
+
+    DateFormat df = DateFormat('yyyy-MM-dd');
+    print("----------------------------- ${group.name} -----------------------------");
+
+    for (Task task in group.tasks) {
+
+      // Mostra 'icone' de acordo com status da tarefa
+      String status;
+      switch (task.status) {
+        case 'new': status = '[ ]'; break;
+        case 'doing': status = '[-]'; break;
+        case 'done': status = '[x]'; break;
+      }
+
+      // Prepara descricao e depois printa a tarefa em si
+      String desc = (task.description.isNotEmpty) ? '    \"${task.description}\"' : '';
+      print("$status #${task.id} ${df.format(task.created)} - ${task.title}\n"+desc);
+    }
+    print("");
   }
 
   Group getOrCreateGroup(String name) {
