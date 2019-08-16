@@ -10,6 +10,8 @@ class Task {
   String description;
   DateTime created;
   String status;
+  int priority;
+  String author;
 
   Task(this.title, this.description, this.created, this.status) {
     this.id = rndHash(5);

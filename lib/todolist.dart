@@ -288,6 +288,11 @@ class TodoList {
     DateFormat df = DateFormat('yyyy-MM-dd');
     print("\n----------------------------- "+(Colorize(group.name)..lightBlue()).toString()+" -----------------------------");
 
+    // Ordena por prioridade
+    group.tasks.sort((a,b) {
+      return a.priority.compareTo(b.priority);
+    });
+
     for (Task task in group.tasks) {
 
       // Mostra 'icone' de acordo com status da tarefa
@@ -298,13 +303,18 @@ class TodoList {
         case 'done': status = Colorize('[x]'); break;
       }
 
-      // Prepara descricao e depois printa a tarefa em si
-      String desc = (task.description.isNotEmpty) ? '    ${task.description}' : '';
-      Colorize title = Colorize("${task.title}")..lightGray();
-      print("$status ${task.id} ${df.format(task.created)}\n    ${title}\n"+desc);
-    }
+      Colorize priority;
+      switch (task.priority) {
+        case 1: priority = Colorize('*')..bgBlack()..lightRed(); break;
+        case 2: priority = Colorize('*')..bgBlack()..lightGray(); break;
+        case 3: priority = Colorize('*')..bgBlack()..lightGreen(); break;
+      }
 
-    print("");
+      // Prepara descricao e depois printa a tarefa em si
+      String desc = (task.description.isNotEmpty) ? '    ${task.description}\n' : '';
+      Colorize title = Colorize("${task.title}")..lightGray();
+      print("$status ${priority} ${title}\n    ${task.id} ${df.format(task.created)}\n"+desc);
+    }
   }
 
   Group getOrCreateGroup(String name) {

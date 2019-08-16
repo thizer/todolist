@@ -23,6 +23,8 @@ main(List<String> args) {
 
   try {
 
+    print("\x1B[2J\x1B[0;0H");
+
     if (!Platform.isLinux) {
       throw Exception('Não sei o que fazer.. Nunca cheguei nessa parte =S');
     }
