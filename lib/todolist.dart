@@ -48,7 +48,7 @@ class TodoList {
     openDatabase();
 
     if (this.args[ABOUT]) {
-      
+
       print(Colorize("\nSobre este Software\n")..lightBlue());
       print("Config file = "+getHomePath()+"/.todolist");
       for (var i in config.items('default')) {
@@ -258,8 +258,9 @@ class TodoList {
 
       // Prepara descricao e depois printa a tarefa em si
       String desc = (task.description.isNotEmpty) ? '    \"${task.description}\"' : '';
-      print("$status ${task.id} ${df.format(task.created)} - ${task.title}\n"+desc);
+      print("$status ${task.id} ${df.format(task.created)}\n    \"${task.title}\"\n"+desc);
     }
+
     print("");
   }
 

@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart' as crypto;
 const ABOUT = 'about';
 const HELP = 'help';
 
+const ALL = 'all';
 const LIST = 'list';
 const ADD = 'add';
 const REMOVE = 'remove';
