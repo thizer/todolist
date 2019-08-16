@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:intl/intl.dart';
 
 import 'package:args/args.dart';
 import 'package:ini/ini.dart';
@@ -158,15 +159,35 @@ class TodoList {
   }
 
   void list() {
-    print('Lista de tarefas');
-    print(jsonEncoder.convert(this.database.toJson()));
+    
+    DateFormat df = DateFormat('yyyy-MM-dd');
 
-    print('');
-    print("Configurações");
-    print("Config file = "+getHomePath()+"/.todolist");
-    for (var i in config.items('default')) {
-      print(i.first+" = "+i.last);
+    for (Group group in this.database.group) {
+      if (group.name == 'default' || group.name == config.get('default', 'groupname')) {
+        print("----------------${group.name}-----------------------------");
+        
+        for (Task task in group.tasks) {
+
+          String status;
+
+          switch (task.status) {
+            case 'new': status = '[ ]'; break;
+            case 'doing': status = '[-]'; break;
+            case 'done': status = '[x]'; break;
+          }
+
+          String desc = (task.description.isNotEmpty) ? '\n    \"${task.description}\"\n' : '\n';
+
+          print("$status #${task.id} ${df.format(task.created)} - ${task.title}"+desc);
+        }
+      }
     }
+
+    // print("\nConfigurações");
+    // print("Config file = "+getHomePath()+"/.todolist");
+    // for (var i in config.items('default')) {
+    //   print(i.first+" = "+i.last);
+    // }
   }
 
   Group getOrCreateGroup(String name) {

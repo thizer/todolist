@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart' as crypto;
 
 const HELP = 'help';
 
@@ -36,4 +39,13 @@ bool checkArg(var arg) {
     result = true;
   }
   return result;
+}
+
+String rndHash(int length) {
+  var content = Utf8Encoder().convert(DateTime.now().toIso8601String());
+  var md5 = crypto.md5;
+  var digest = md5.convert(content);
+  String hash = hex.encode(digest.bytes);
+
+  return hash.substring(0, length);
 }

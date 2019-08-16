@@ -25,10 +25,17 @@ main(List<String> args) {
       throw Exception('Não sei o que fazer.. Nunca cheguei nessa parte =S');
     }
 
+    // Quando nao for informado nenhum parametro forcamos uma lista
+    if (args.isEmpty) {
+
+      args = List<String>();
+      args.add("--list");
+    }
+
     ArgResults results = parser.parse(args);
 
     // O cara so quer ajuda
-    if (args.isEmpty || results[HELP]) {
+    if (results[HELP]) {
       print(parser.usage);
       exit(0);
     }
