@@ -49,12 +49,21 @@ class TodoList {
 
     if (this.args[ABOUT]) {
 
-      print(Colorize("\nSobre este Software\n")..lightBlue());
+      print(Colorize(textCenter("------------------------------"))..lightBlue());
+      print(Colorize(textCenter("TodoList - Sobre este Software")+"\n")..lightBlue());
+      print(textCenter("-------------------------------------"));
+      print("Crie listas de tarefas separadas por grupos (usuários)");
+      print("Defina prioridades para executar primeiro o que é mais importante");
+      print("Utilize os status [new, doing, done] para manter seus parceiros informados");
+      print(textCenter("-------------------------------------"));
+      print("A maneira mais pratica de controlar suas tarefas sem perder tempo");
+
+      print("\nVerifique abaixo informações sobre a atual configuração:");
       print("Config file = "+getHomePath()+"/.todolist");
       for (var i in config.items('default')) {
         print(i.first+" = "+i.last);
       }
-      print(Colorize("\nTodoList por Thizer\n")..white()..bgBlack());
+      print(Colorize("\n"+textCenter("THIZER® - www.thizer.com")+"\n")..white()..bgBlack());
       exit(0);
     }
 
@@ -73,10 +82,16 @@ class TodoList {
     } else if (checkArg(this.args[STATUS])) {
       this.status();
 
+    } else if (checkArg(this.args[REMOVE_GROUP])) {
+      this.removeGroup();
     } else {
-      throw Exception('Não tenho bola de cristal, brod...');
+      if (newJsonDb == null && groupName == null) {
+        throw Exception('Não tenho bola de cristal, brod...');
+      }
     }
 
+    // No final de toda execussao persiste
+    // as alteracoes no banco de dados (arquivo json)
     saveDatabase();
   }
 
@@ -116,10 +131,36 @@ class TodoList {
 
       // Salva alteracao
       configFile.writeAsStringSync(this.config.toString());
-    }
 
-    // Determina onde salvar o arquivo de banco de dados
-    this.jsonDbFile = config.get('default', 'jsondbfile');
+      // Determina onde salvar o arquivo de banco de dados
+      this.jsonDbFile = config.get('default', 'jsondbfile');
+
+      // Abre base de dados para criar o grupo
+      openDatabase();
+
+      bool groupExists = false;
+      for (Group group in this.database.group) {
+        if (group.name == groupName) {
+          groupExists = true;
+          break;
+        }
+      }
+
+      if (!groupExists) {
+
+        // Grupo ainda nao existe, cria
+        this.database.group.add(Group(groupName, List<Task>()));
+
+        // Persiste
+        saveDatabase();
+      }
+
+      list();
+
+    } else {
+      // Determina onde salvar o arquivo de banco de dados
+      this.jsonDbFile = config.get('default', 'jsondbfile');
+    }
   }
 
   void openDatabase() {
@@ -159,12 +200,14 @@ class TodoList {
   }
 
   void add() {
+
+    // Cria uma tarefa novinha
     Group group = getOrCreateGroup(this.args[GROUP]);
     group.tasks.add(Task(
       this.args[ADD],
       this.args.rest.join(' '),
       config.get('default', 'groupname').toString(),
-      2
+      checkArg(this.args[PRIORITY]) ? int.parse(this.args[PRIORITY]) : 2
     ));
 
     this.list();
@@ -217,10 +260,11 @@ class TodoList {
           break;
         }
       }
+      if (found) break;
     }
 
     if (!found) {
-      print(Colorize("\nTarefa '${this.args[REMOVE]}' não encontrada. Talvez tenha sido apagada\n")..lightYellow());
+      print(Colorize("\nTarefa '${this.args[MOVE]}' não encontrada. Talvez tenha sido apagada\n")..lightYellow());
     }
 
     list();
@@ -288,37 +332,107 @@ class TodoList {
     list();
   }
 
+  void removeGroup() {
+
+    if (this.args[REMOVE_GROUP] == 'default') {
+      throw Exception("Ahh vai cagá... O grupo 'default' não pode ser removido");
+    }
+
+    // Busca grupo de origem
+    Group source = this.database.find(this.args[REMOVE_GROUP]);
+    if (source == null) {
+      print(Colorize("\nGrupo '${this.args[REMOVE_GROUP]}' não encontrado. Talvez já tenha sido apagado\n")..lightYellow());
+      exit(0);
+    }
+
+    // Grupo destino default sempre existira
+    Group target = this.database.find('default');
+
+    // Transfere todas as tarefas para la
+    target.tasks.addAll(source.tasks);
+
+    // Apaga grupo
+    this.database.group.remove(source);
+
+    list();
+  }
+
   void imprimeTarefas(Group group) {
 
-    DateFormat df = DateFormat('yyyy-MM-dd');
-    print("\n----------------------------- "+(Colorize(group.name)..lightBlue()).toString()+" -----------------------------");
+    DateFormat df = DateFormat('yyyy-MM-dd H:mm');
+    print("----------------------------- "+(Colorize(group.name)..lightBlue()).toString()+" -----------------------------");
 
     // Ordena por prioridade
     group.tasks.sort((a,b) {
-      return a.priority.compareTo(b.priority);
+      
+      int result = 0;
+
+      // As tarefas prontas vao pro final da lista, nao importa a prioridade
+      if (a.status == 'done') {
+        result = 1;
+      } else if (b.status == 'done') {
+        result = -1;
+      }
+
+      if (result == 0) {
+
+        // Compara por prioridade
+        result = a.priority.compareTo(b.priority);
+
+        // Depois por status, caso seja necessario
+        if (result == 0) {
+
+          // Sim, poderia estar em outro lugar para usar menos memoria...
+          var statuse = {'new': 2, 'doing': 1, 'done': 3};
+
+          // -1 se a < b
+          // 0 se iguais
+          // 1 se a > b
+
+          if (statuse[a.status] < statuse[b.status]) {
+            result = -1;
+          } else if (statuse[a.status] > statuse[b.status]) {
+            result = 1;
+          }
+
+          // O que sobre a gente ordena pela data
+          // Mais antigas para cima
+          if (result == 0) {
+            result = a.created.compareTo(b.created);
+          }
+        }
+      }
+      return result;
     });
 
     for (Task task in group.tasks) {
 
       // Mostra 'icone' de acordo com status da tarefa
-      Colorize status;
+      String status;
       switch (task.status) {
-        case 'new': status = Colorize('[ ]')..lightYellow(); break;
-        case 'doing': status = Colorize('[-]')..lightRed(); break;
-        case 'done': status = Colorize('[x]'); break;
+        case 'new':   status = '(   )'; break;
+        case 'doing': status = '( ~ )'; break;
+        case 'done':  status = '( x )'; break;
       }
 
       Colorize priority;
-      switch (task.priority) {
-        case 1: priority = Colorize('*')..bgBlack()..lightRed(); break;
-        case 2: priority = Colorize('*')..bgBlack()..lightGray(); break;
-        case 3: priority = Colorize('*')..bgBlack()..lightGreen(); break;
+
+      if (task.status == 'done') {
+        priority = Colorize(status)..darkGray();
+      } else {
+        switch (task.priority) {
+          case 1: priority = Colorize(status)..bgBlack()..lightRed(); break;
+          case 2: priority = Colorize(status)..bgBlack()..yellow(); break;
+          case 3: priority = Colorize(status)..bgBlack()..green(); break;
+        }
       }
 
       // Prepara descricao e depois printa a tarefa em si
-      String desc = (task.description.isNotEmpty) ? '    ${task.description}\n' : '';
+      Colorize desc = Colorize((task.description.isNotEmpty) ? '    ${task.description}\n' : '')..blue();
       Colorize title = Colorize("${task.title}")..lightGray();
-      print("$status ${priority} ${title}\n    ${task.id} ${df.format(task.created)} - Author: ${task.author}\n"+desc);
+      Colorize header = Colorize("[${task.priority}] ${task.author} em ${df.format(task.created)}\n")..darkGray();
+      
+      print(" $priority ${task.id} $title\n       $header   $desc");
     }
   }
 

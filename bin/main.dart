@@ -18,6 +18,8 @@ main(List<String> args) {
   parser.addOption(GROUP, abbr: 'g', defaultsTo: 'default', help: 'Informa o grupo onde listar ou adicionar');
   parser.addFlag(ALL, defaultsTo: false, negatable: false, help: 'Usado junto de --lista. Exibe todas as tarefas');
   parser.addOption(STATUS, abbr: 's', allowed: ['new', 'doing', 'done'], help: 'Modifica o status da tarefa');
+  parser.addOption(PRIORITY, abbr: 'p', allowed: ['1','2','3'], help: 'Declara a prioridade de uma tarefa onde 1 é mais urgente');
+  parser.addOption(REMOVE_GROUP, help: "Transfere todas as tarefas para 'default' e apaga grupo");
   parser.addOption(GROUP_NAME, help: 'Um nome para adicionar suas tarefas pessoais');
   parser.addOption(JSON_DB, valueHelp: 'json filename', help: 'Aponta onde salvar as tarefas (Arquivo JSON)');
 
@@ -34,6 +36,15 @@ main(List<String> args) {
 
       args = List<String>();
       args.add("--list");
+    }
+
+    for (String arg in args) {
+      if (arg == '--all') {
+
+        args = List<String>();
+        args.addAll(['--list', '--all']);
+        break;
+      }
     }
 
     ArgResults results = parser.parse(args);

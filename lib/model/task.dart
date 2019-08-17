@@ -11,24 +11,17 @@ class Task {
   // $ pub run build_runner build
 
   String id;
-  
   String title;
-  
   String description;
-  
   DateTime created;
-
-  @JsonKey(defaultValue: 'new')
   String status;
-
   String author;
-
-  @JsonKey(defaultValue: 2)
   int priority;
 
   Task(this.title, this.description, this.author, this.priority) {
     this.id = rndHash(5);
     this.created = DateTime.now();
+    this.status = 'new';
   }
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);

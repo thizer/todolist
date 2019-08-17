@@ -14,7 +14,9 @@ const MOVE = 'move';
 
 const GROUP = 'group';
 const STATUS = 'status';
+const PRIORITY = 'priority';
 
+const REMOVE_GROUP = 'rm-group';
 const GROUP_NAME = 'groupname';
 const JSON_DB = 'jsondb';
 
@@ -50,4 +52,14 @@ String rndHash(int length) {
   String hash = hex.encode(digest.bytes);
 
   return hash.substring(0, length);
+}
+
+String textCenter(String text, {int length = 50}) {
+  int pad = ((length - text.length)/2).floor();
+
+  if (pad < 0) {
+    pad = 0;
+  }
+
+  return "".padLeft(pad)+text+"".padRight(pad);
 }
