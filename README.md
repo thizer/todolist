@@ -10,7 +10,6 @@ e vice-versa.
 
 ![Classico](assets/classico.png)
 ![Exemplo 1](assets/todolist1.png)
-![Exemplo 2](assets/todolist2.png)
 ![Help options](assets/todolist3.png)
 
 ## Install
