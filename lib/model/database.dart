@@ -16,11 +16,14 @@ class Database {
   Database(this.group);
 
   Group find(String name) {
+    Group result;
     for (Group item in this.group) {
       if (item.name == name) {
-        return item;
+        result = item;
+        break;
       }
     }
+    return result;
   }
 
   factory Database.fromJson(Map<String, dynamic> json) => _$DatabaseFromJson(json);

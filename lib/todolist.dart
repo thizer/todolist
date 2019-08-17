@@ -207,33 +207,26 @@ class TodoList {
       this.args[ADD],
       this.args.rest.join(' '),
       config.get('default', 'groupname').toString(),
-      checkArg(this.args[PRIORITY]) ? int.parse(this.args[PRIORITY]) : 2
+      checkArg(this.args[PRIORITY]) ? int.parse(this.args[PRIORITY]) : 3
     ));
 
     this.list();
   }
 
   void remove() {
-    
-    bool found = false;
 
     // Loop sobre todos os grupos
     for (Group group in this.database.group) {
-      
-      // Loop sobre as tarefas do grupo
-      for (Task task in group.tasks) {
-        if (task.id == this.args[REMOVE]) {
 
-          // Encontrou, remove e marca como encontrado
-          group.tasks.remove(task);
-          found = true;
-          break;
-        }
+      Task task = group.find(this.args[REMOVE]);
+      if (task != null) {
+
+        group.tasks.remove(task);
+        break;
+
+      } else {
+        print(Colorize("\nTarefa '${this.args[REMOVE]}' não encontrada. Talvez já tenha sido apagada\n")..lightYellow());
       }
-    }
-
-    if (!found) {
-      print(Colorize("\nTarefa '${this.args[REMOVE]}' não encontrada. Talvez já tenha sido apagada\n")..lightYellow());
     }
 
     list();
@@ -283,21 +276,29 @@ class TodoList {
 
       if (this.args[GROUP] != 'default') {
 
-        // Foi informado o grupo onde listar as tarefas
-        for (Group group in this.database.group) {
-          if (group.name == this.args[GROUP]) {
-            imprimeTarefas(group);
-            break;
-          }
-        } 
+        Group group = this.database.find(this.args[GROUP]);
+
+        if (group == null) {
+          print(Colorize("\nO grupo '${this.args[GROUP]}' não foi encontrado. Digitou errado?\n")..lightYellow());
+          list();
+          exit(0);
+        }
+
+        // Se nao foi encontrado o grupo, nem chegara aqui
+        imprimeTarefas(group);
+
       } else {
 
-        // Não foi informado grupo onde listar as tarefas então listamos
-        // as tarefas default e as do proprio usuario
-        for (Group group in this.database.group) {
-          if (group.name == 'default' || group.name == config.get('default', 'groupname')) {
-            imprimeTarefas(group);
-          }
+        // Grupo do usuario
+        Group userGroup = this.database.find(config.get('default', 'groupname'));
+        if (userGroup != null) {
+          imprimeTarefas(userGroup);
+        }
+
+        // Grupo default
+        Group defaultGroup = this.database.find('default');
+        if (defaultGroup != null) {
+          imprimeTarefas(defaultGroup);
         }
 
       } // endelse
@@ -306,7 +307,7 @@ class TodoList {
 
   void status() {
     if (this.args.rest.isEmpty) {
-      throw FormatException('Informe o id da tarefa que deseja alterar');
+      throw ArgParserException('Informe o id da tarefa que deseja alterar');
     }
 
     bool found = false;
@@ -314,14 +315,12 @@ class TodoList {
     // Loop sobre todos os grupos
     for (Group group in this.database.group) {
       
-      // Loop sobre as tarefas do grupo
-      for (Task task in group.tasks) {
-        if (task.id == this.args.rest.first) {
-
-          task.status = this.args[STATUS];
-          found = true;
-          break;
-        }
+      // Procura pela tarefa
+      Task task = group.find(this.args.rest.first);
+      if (task != null) {
+        task.status = this.args[STATUS];
+        found = true;
+        break;
       }
     }
 
@@ -335,7 +334,7 @@ class TodoList {
   void removeGroup() {
 
     if (this.args[REMOVE_GROUP] == 'default') {
-      throw Exception("Ahh vai cagá... O grupo 'default' não pode ser removido");
+      throw ArgParserException("Ahh vai cagá... O grupo 'default' não pode ser removido");
     }
 
     // Busca grupo de origem
@@ -360,7 +359,14 @@ class TodoList {
   void imprimeTarefas(Group group) {
 
     DateFormat df = DateFormat('yyyy-MM-dd H:mm');
-    print("----------------------------- "+(Colorize(group.name)..lightBlue()).toString()+" -----------------------------");
+    print(Colorize(textCenter(" + ${group.name} + ", maxlen: 70, padding: '-'))..lightBlue());
+    print('');
+
+    if (group.tasks.isEmpty) {
+      print(textCenter('Cidadão na maciota', maxlen: 70));
+      print('');
+      return;
+    }
 
     // Ordena por prioridade
     group.tasks.sort((a,b) {
@@ -417,22 +423,35 @@ class TodoList {
 
       Colorize priority;
 
+      var tlatePrior = { 1: '[URG]', 2: '[MED]', 3: '[LOW]'};
+      Colorize priorityName = Colorize(tlatePrior[task.priority]);
+
       if (task.status == 'done') {
         priority = Colorize(status)..darkGray();
       } else {
         switch (task.priority) {
-          case 1: priority = Colorize(status)..bgBlack()..lightRed(); break;
-          case 2: priority = Colorize(status)..bgBlack()..yellow(); break;
-          case 3: priority = Colorize(status)..bgBlack()..green(); break;
+          case 1:
+            priority = Colorize(status)..bgBlack()..lightRed();
+            priorityName..lightRed();
+            break;
+          case 2:
+            priority = Colorize(status)..bgBlack()..yellow();
+            priorityName..yellow();
+            break;
+          case 3:
+            priority = Colorize(status)..bgBlack()..green();
+            priorityName..green();
+            break;
         }
       }
 
       // Prepara descricao e depois printa a tarefa em si
-      Colorize desc = Colorize((task.description.isNotEmpty) ? '    ${task.description}\n' : '')..blue();
+      Colorize desc = Colorize((task.description.isNotEmpty) ? '${task.description}' : '...')..blue();
+      Colorize taskid = Colorize("${task.id}")..lightGray()..bold();
       Colorize title = Colorize("${task.title}")..lightGray();
-      Colorize header = Colorize("[${task.priority}] ${task.author} em ${df.format(task.created)}\n")..darkGray();
+      Colorize header = Colorize("Em ${df.format(task.created)} por ${task.author}")..darkGray();
       
-      print(" $priority ${task.id} $title\n       $header   $desc");
+      print(" $taskid $title\n $priorityName $header\n $priority $desc\n");
     }
   }
 

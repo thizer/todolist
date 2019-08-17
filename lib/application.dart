@@ -59,12 +59,10 @@ String rndHash(int length) {
   return hash.substring(0, length);
 }
 
-String textCenter(String text, {int length = 50}) {
-  int pad = ((length - text.length)/2).floor();
+String textCenter(String text, {int maxlen = 50, String padding = ' '}) {
 
-  if (pad < 0) {
-    pad = 0;
-  }
+  int pad = ((maxlen - text.length)/2).floor();
+  if (pad < 0) pad = 0;
 
-  return "".padLeft(pad)+text+"".padRight(pad);
+  return "".padLeft(pad, padding)+text+"".padRight(pad, padding);
 }
