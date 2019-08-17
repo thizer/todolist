@@ -1,5 +1,5 @@
 Package: todolist
-Version: 1.1.1
+Version: 1.1.2
 Architecture: all
 Source: /usr/local/bin/todolist
 Maintainer: Thizer <thizerdev@gmail.com>
@@ -8,5 +8,5 @@ Sections: task, utils
 Priority: optional
 Build-Depends:
 Build-Conflicts: 
-Description: Gerencia simples tarefas
+Description: Gerencia simples tarefas através de arquivo de banco de dados JSON. Este arquivo pode ser mantido em pasta compartilhada a fim de compartilhar a lista de tarefas.
 Homepage: https://www.thizer.com
