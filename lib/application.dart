@@ -7,6 +7,7 @@ const ABOUT = 'about';
 const HELP = 'help';
 
 const ALL = 'all';
+const COMPACT = 'compact';
 const LIST = 'list';
 const ADD = 'add';
 const REMOVE = 'remove';

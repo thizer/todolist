@@ -13,6 +13,7 @@ main(List<String> args) {
   parser.addFlag(HELP, abbr: 'h', defaultsTo: false, negatable: false);
   parser.addFlag(LIST, abbr: 'l', defaultsTo: false, negatable: false, help: 'Listar tarefas');
   parser.addFlag(ALL, defaultsTo: false, negatable: false, help: 'Exibe todas as tarefas');
+  parser.addFlag(COMPACT, defaultsTo: false, negatable: false, help: 'Exibe as tarefas em modo compacto');
   parser.addOption(ADD, abbr: 'a', help: 'Adicionar tarefa');
   parser.addOption(REMOVE, abbr: 'd', help: 'Remover uma tarefa');
   parser.addOption(MOVE, abbr: 'm', help: 'Trocar grupo de uma tarefa');
@@ -41,6 +42,10 @@ main(List<String> args) {
     if (args.isEmpty) {
       args = List<String>();
       args.add("--$LIST");
+
+    } else if (args.length == 1 && args.first == '--$COMPACT') {
+      args = List<String>();
+      args.addAll(["--$LIST", "--$COMPACT"]);
     }
 
     // Efetiva o parse dos argumentos
@@ -49,7 +54,14 @@ main(List<String> args) {
     // Verifica se os atalhos foram definidos, se foram substituimos
     // o results atual para forcar de acordo com o atalho
     if (checkArg(results[ALL])) {
-      results = parser.parse(['--$LIST', '--$ALL']);
+
+      List<String> args = List<String>();
+      args.addAll(['--$LIST', '--$ALL']);
+      if (results[COMPACT]) {
+        args.add('--$COMPACT');
+      }
+
+      results = parser.parse(args);
     }
     
     // Alteracao de status

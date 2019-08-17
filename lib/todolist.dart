@@ -321,6 +321,7 @@ class TodoList {
 
       } // endelse
     } // endelse
+    print("");
   }
 
   void status() {
@@ -426,7 +427,6 @@ class TodoList {
 
     DateFormat df = DateFormat('yyyy-MM-dd H:mm');
     print(Colorize(textCenter(" + ${group.name} + ", maxlen: 70, padding: '-'))..lightBlue());
-    print('');
 
     if (group.tasks.isEmpty) {
       print(textCenter('Cidadão na maciota', maxlen: 70));
@@ -435,47 +435,7 @@ class TodoList {
     }
 
     // Ordena por prioridade
-    group.tasks.sort((a,b) {
-      
-      int result = 0;
-
-      // As tarefas prontas vao pro final da lista, nao importa a prioridade
-      if (a.status == 'done') {
-        result = 1;
-      } else if (b.status == 'done') {
-        result = -1;
-      }
-
-      if (result == 0) {
-
-        // Compara por prioridade
-        result = a.priority.compareTo(b.priority);
-
-        // Depois por status, caso seja necessario
-        if (result == 0) {
-
-          // Sim, poderia estar em outro lugar para usar menos memoria...
-          var statuse = {'new': 2, 'doing': 1, 'done': 3};
-
-          // -1 se a < b
-          // 0 se iguais
-          // 1 se a > b
-
-          if (statuse[a.status] < statuse[b.status]) {
-            result = -1;
-          } else if (statuse[a.status] > statuse[b.status]) {
-            result = 1;
-          }
-
-          // O que sobre a gente ordena pela data
-          // Mais antigas para cima
-          if (result == 0) {
-            result = a.created.compareTo(b.created);
-          }
-        }
-      }
-      return result;
-    });
+    group.tasks.sort(this.sortTasks);
 
     for (Task task in group.tasks) {
 
@@ -519,7 +479,16 @@ class TodoList {
       Colorize title = Colorize("${task.title}")..lightGray();
       Colorize header = Colorize("Em ${df.format(task.created)} por ${task.author}")..darkGray();
       
-      print(" $taskid $title\n $priorityName $header\n $priority $desc\n");
+      if (this.args[COMPACT]) {
+
+        // Imprime normal
+        print(" $priority $taskid $title");
+
+      } else {
+
+        // Imprime normal
+        print(" $taskid $title\n $priorityName $header\n $priority $desc");
+      }
     }
   }
 
@@ -542,6 +511,57 @@ class TodoList {
       this.database.group.add(result);
     }
 
+    return result;
+  }
+
+  /// 
+  /// Efetiva uma ordenacao entre as tarefas de acordo com nossos proprios criterios
+  /// 
+  /// [Task a] this
+  /// [Task b] other
+  /// 
+  /// Quando this < other retorna -1;
+  /// Quando iguais retorna 0;
+  /// Quando this > other retorna 1;
+  int sortTasks(Task a, Task b) {
+      
+    int result = 0;
+
+    // As tarefas prontas vao pro final da lista, nao importa a prioridade
+    if (a.status == 'done') {
+      result = 1;
+    } else if (b.status == 'done') {
+      result = -1;
+    }
+
+    if (result == 0) {
+
+      // Compara por prioridade
+      result = a.priority.compareTo(b.priority);
+
+      // Depois por status, caso seja necessario
+      if (result == 0) {
+
+        // Sim, poderia estar em outro lugar para usar menos memoria...
+        var statuse = {'new': 2, 'doing': 1, 'done': 3};
+
+        // -1 se a < b
+        // 0 se iguais
+        // 1 se a > b
+
+        if (statuse[a.status] < statuse[b.status]) {
+          result = -1;
+        } else if (statuse[a.status] > statuse[b.status]) {
+          result = 1;
+        }
+
+        // O que sobre a gente ordena pela data
+        // Mais antigas para cima
+        if (result == 0) {
+          result = a.created.compareTo(b.created);
+        }
+      }
+    }
     return result;
   }
 
