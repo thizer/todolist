@@ -13,7 +13,8 @@ import 'application.dart';
 
 class TodoList {
 
-  final ArgResults args;
+  ArgParser parser;
+  ArgResults args;
 
   JsonEncoder jsonEncoder;
   JsonDecoder jsonDecoder;
@@ -25,7 +26,7 @@ class TodoList {
   /// Json Obj file content
   Database database;
 
-  TodoList(this.args) {
+  TodoList(this.args, this.parser) {
 
     // This is the object that transform objects to pretty json strings
     jsonEncoder = JsonEncoder.withIndent('  ');
@@ -237,33 +238,40 @@ class TodoList {
 
   void move()  {
     if (!checkArg(this.args[GROUP]) && this.args.rest.isEmpty) {
-      throw ArgParserException('');
+      throw ArgParserException('Ué, você não informou o grupo para onde quer mover');
     }
 
     // O cara pode passar o nome do outro grupo com ou sem o '-g'
-    String newGroupname = checkArg(this.args[GROUP]) ? this.args[GROUP] : this.args.rest.first;
+    String newGroupname = (this.args.rest.isNotEmpty) ? this.args.rest.first : this.args[GROUP];
 
     bool found = false;
 
     // Loop sobre todos os grupos
     for (Group group in this.database.group) {
       
-      // Loop sobre as tarefas do grupo
-      for (Task task in group.tasks) {
-        if (task.id == this.args[MOVE]) {
+      Task task = group.find(this.args[MOVE]);
+      if (task != null) {
 
-          // Encontrou, remove e marca como encontrado
-          group.tasks.remove(task);
+        // Encontrou, remove e marca como encontrado
+        group.tasks.remove(task);
 
-          // Adiciona no novo grupo
-          Group newGroup = getOrCreateGroup(newGroupname);
-          newGroup.tasks.add(task);
+        // Adiciona no novo grupo
+        Group newGroup = getOrCreateGroup(newGroupname);
+        newGroup.tasks.add(task);
 
-          found = true;
-          break;
-        }
+        found = true;
+
+        // Refatora argumentos adicionando o grupo que foi
+        // alterado, para listar as tarefas deste grupo
+
+        List<String> arguments = List<String>();
+        arguments.addAll(['--$GROUP', newGroupname]);
+
+        ArgResults results = this.parser.parse(arguments);
+        this.args = results;
+
+        break;
       }
-      if (found) break;
     }
 
     if (!found) {
@@ -330,6 +338,16 @@ class TodoList {
       if (task != null) {
         task.status = this.args[STATUS];
         found = true;
+
+        // Refatora argumentos adicionando o grupo que foi
+        // alterado, para listar as tarefas deste grupo
+
+        List<String> arguments = List<String>();
+        arguments.addAll(['--$GROUP', group.name]);
+
+        ArgResults results = this.parser.parse(arguments);
+        this.args = results;
+
         break;
       }
     }
@@ -348,15 +366,26 @@ class TodoList {
 
     var tlatePrior = { 'urg': 1, 'med': 2, 'low': 3 };
     bool found = false;
-
+    
     // Loop sobre todos os grupos
     for (Group group in this.database.group) {
       
       // Procura pela tarefa
       Task task = group.find(this.args.rest.first);
       if (task != null) {
+
         task.priority = tlatePrior[this.args[PRIORITY]];
         found = true;
+        
+        // Refatora argumentos adicionando o grupo que foi
+        // alterado, para listar as tarefas deste grupo
+
+        List<String> arguments = List<String>();
+        arguments.addAll(['--$GROUP', group.name]);
+
+        ArgResults results = this.parser.parse(arguments);
+        this.args = results;
+
         break;
       }
     }
@@ -453,9 +482,9 @@ class TodoList {
       // Mostra 'icone' de acordo com status da tarefa
       String status;
       switch (task.status) {
-        case 'new':   status = '(   )'; break;
-        case 'doing': status = '( ~ )'; break;
-        case 'done':  status = '( x )'; break;
+        case 'new':   status = '(```)'; break;
+        case 'doing': status = '(~~~)'; break;
+        case 'done':  status = '(xxx)'; break;
       }
 
       Colorize priority;
@@ -483,7 +512,9 @@ class TodoList {
       }
 
       // Prepara descricao e depois printa a tarefa em si
-      Colorize desc = Colorize((task.description.isNotEmpty) ? '${task.description}' : '...')..blue();
+      Colorize desc = Colorize((task.description.isNotEmpty) ? '${task.description}' : '...');
+      (task.status == 'done') ? (desc..darkGray()) : (desc..lightBlue()); // Cor dependendo do status
+
       Colorize taskid = Colorize("${task.id}")..bgBlack()..lightGray()..bold();
       Colorize title = Colorize("${task.title}")..lightGray();
       Colorize header = Colorize("Em ${df.format(task.created)} por ${task.author}")..darkGray();

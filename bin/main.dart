@@ -81,7 +81,7 @@ main(List<String> args) {
     }
 
     // Inicia o programa de fato
-    TodoList(results);
+    TodoList(results, parser);
 
   } catch (e) {
 
