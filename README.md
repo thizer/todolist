@@ -6,13 +6,18 @@ Este arquivo pode ficar em um servidor compartilhado tornando
 assim possível que um colaborador possa criar tarefa para outro
 e vice-versa.
 
-`todolist`
+> Ps.: No terminal `$` significa que estamos usando um usuário comum (não root)
+
+`$ todolist`
+
 ![Classico](assets/classico.png)
 
-`todolist -g marco`
+`$ todolist -g marco`
+
 ![Exemplo 1](assets/todolist1.png)
 
-`todolist --compact -g marco`
+`$ todolist --compact -g marco`
+
 ![Exemplo 2](assets/todolist2.png)
 
 ## Install
