@@ -8,9 +8,9 @@ e vice-versa.
 
 > Ps.: No terminal `$` significa que estamos usando um usuário comum (não root)
 
+![Help options](assets/todolist3.png)
 ![Classico](assets/classico.png)
 ![Exemplo 1](assets/todolist1.png)
-![Help options](assets/todolist3.png)
 
 ## Install
 
