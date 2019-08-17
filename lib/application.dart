@@ -13,12 +13,17 @@ const REMOVE = 'remove';
 const MOVE = 'move';
 
 const GROUP = 'group';
+
 const STATUS = 'status';
+const NEW = 'new';
+const DOING = 'doing';
+const DONE = 'done';
+
 const PRIORITY = 'priority';
 
 const REMOVE_GROUP = 'rm-group';
-const GROUP_NAME = 'groupname';
-const JSON_DB = 'jsondb';
+const GROUP_NAME = 'set-groupname';
+const JSON_DB = 'set-jsondb';
 
 String getHomePath() {
   Map<String, String> env = Platform.environment;
