@@ -8,17 +8,10 @@ e vice-versa.
 
 > Ps.: No terminal `$` significa que estamos usando um usuário comum (não root)
 
-`$ todolist`
-
 ![Classico](assets/classico.png)
-
-`$ todolist -g marco`
-
 ![Exemplo 1](assets/todolist1.png)
-
-`$ todolist --compact -g marco`
-
 ![Exemplo 2](assets/todolist2.png)
+![Help options](assets/todolist3.png)
 
 ## Install
 
