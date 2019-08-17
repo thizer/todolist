@@ -65,8 +65,13 @@ String rndHash(int length) {
 
 String textCenter(String text, {int maxlen = 50, String padding = ' '}) {
 
+  // Calcula metade dos caracteres para cada lado
   int pad = ((maxlen - text.length)/2).floor();
   if (pad < 0) pad = 0;
 
-  return "".padLeft(pad, padding)+text+"".padRight(pad, padding);
+  // Aplica em ambos os lados
+  String result = "".padLeft(pad, padding)+text+"".padRight(pad, padding);
+
+  // Em caso de impares é necessario completar
+  return result.padRight(maxlen, padding);
 }

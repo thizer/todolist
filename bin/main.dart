@@ -13,7 +13,7 @@ main(List<String> args) {
   parser.addFlag(HELP, abbr: 'h', defaultsTo: false, negatable: false);
   parser.addFlag(LIST, abbr: 'l', defaultsTo: false, negatable: false, help: 'Listar tarefas');
   parser.addFlag(ALL, defaultsTo: false, negatable: false, help: 'Exibe todas as tarefas');
-  parser.addFlag(COMPACT, defaultsTo: false, negatable: false, help: 'Exibe as tarefas em modo compacto');
+  parser.addFlag(COMPACT, abbr: 'c', defaultsTo: false, negatable: false, help: 'Exibe as tarefas em modo compacto');
   parser.addOption(ADD, abbr: 'a', help: 'Adicionar tarefa');
   parser.addOption(REMOVE, abbr: 'd', help: 'Remover uma tarefa');
   parser.addOption(MOVE, abbr: 'm', help: 'Trocar grupo de uma tarefa');
@@ -43,9 +43,6 @@ main(List<String> args) {
       args = List<String>();
       args.add("--$LIST");
 
-    } else if (args.length == 1 && args.first == '--$COMPACT') {
-      args = List<String>();
-      args.addAll(["--$LIST", "--$COMPACT"]);
     }
 
     // Efetiva o parse dos argumentos
@@ -62,6 +59,31 @@ main(List<String> args) {
       }
 
       results = parser.parse(args);
+    }
+
+    if (results[COMPACT]) {
+
+      // Cria nova lista
+      List<String> newArgs = List<String>();
+      newArgs.addAll(['--$LIST', '--$COMPACT']);
+      
+      // Adiciona parametro --all caso seja necessario
+      if (results[ALL]) {
+        newArgs.add('--$ALL');
+      }
+
+      if (results.rest.isNotEmpty) {
+
+        // Se usuario passou um nome usa como grupo
+        newArgs.addAll(['--$GROUP', results.rest.first]);
+
+      } else if (checkArg(results[GROUP])) {
+
+        // Usuario ja tinha informado o grupo (do modo tradicional)
+        newArgs.addAll(['--$GROUP', results[GROUP]]);
+      }
+
+      results = parser.parse(newArgs);
     }
     
     // Alteracao de status
