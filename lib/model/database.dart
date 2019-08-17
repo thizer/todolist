@@ -15,6 +15,7 @@ class Database {
 
   Database(this.group);
 
+  /// Busca um grupo pelo nome [name]
   Group find(String name) {
     Group result;
     for (Group item in this.group) {

@@ -17,11 +17,14 @@ main(List<String> args) {
   parser.addOption(REMOVE, abbr: 'd', help: 'Remover uma tarefa');
   parser.addOption(MOVE, abbr: 'm', help: 'Trocar grupo de uma tarefa');
   parser.addOption(GROUP, abbr: 'g', defaultsTo: 'default', help: 'Informa o grupo onde listar ou adicionar');
-  parser.addOption(NEW, help: "Shortcut para '-s new'");
-  parser.addOption(DOING, help: "Shortcut para '-s doing'");
-  parser.addOption(DONE, help: "Shortcut para '-s help'");
+  parser.addOption(NEW, help: "Atalho para '-s new'");
+  parser.addOption(DOING, help: "Atalho para '-s doing'");
+  parser.addOption(DONE, help: "Atalho para '-s help'");
   parser.addOption(STATUS, abbr: 's', allowed: ['new', 'doing', 'done'], help: 'Modifica o status da tarefa');
-  parser.addOption(PRIORITY, abbr: 'p', allowed: ['1','2','3'], help: 'Declara a prioridade de uma tarefa onde 1 é mais urgente');
+  parser.addOption(URG, help: "Atalho para '-p urg'");
+  parser.addOption(MED, help: "Atalho para '-p med'");
+  parser.addOption(LOW, help: "Atalho para '-p low'");
+  parser.addOption(PRIORITY, abbr: 'p', allowed: ['urg','med','low'], help: 'Declara a prioridade de uma tarefa');
   parser.addOption(REMOVE_GROUP, help: "Transfere todas as tarefas para 'default' e apaga grupo");
   parser.addOption(GROUP_NAME, help: 'Um nome para adicionar suas tarefas pessoais');
   parser.addOption(JSON_DB, valueHelp: 'json filename', help: 'Aponta onde salvar as tarefas (Arquivo JSON)');
@@ -47,8 +50,10 @@ main(List<String> args) {
     // o results atual para forcar de acordo com o atalho
     if (checkArg(results[ALL])) {
       results = parser.parse(['--$LIST', '--$ALL']);
-
-    } else if (checkArg(results[NEW])) {
+    }
+    
+    // Alteracao de status
+    if (checkArg(results[NEW])) {
       results = parser.parse(['--$STATUS', 'new', results[NEW]]);
 
     } else if (checkArg(results[DOING])) {
@@ -56,6 +61,17 @@ main(List<String> args) {
 
     } else if (checkArg(results[DONE])) {
       results = parser.parse(['--$STATUS', 'done', results[DONE]]);
+    }
+    
+    // Alteracao de prioridade
+    if (checkArg(results[URG])) {
+      results = parser.parse(['--$PRIORITY', 'urg', results[URG]]);
+      
+    } else if (checkArg(results[MED])) {
+      results = parser.parse(['--$PRIORITY', 'med', results[MED]]);
+
+    } else if (checkArg(results[LOW])) {
+      results = parser.parse(['--$PRIORITY', 'low', results[LOW]]);
     }
 
     // O cara so quer ajuda

@@ -82,6 +82,9 @@ class TodoList {
     } else if (checkArg(this.args[STATUS])) {
       this.status();
 
+    } else if (checkArg(this.args[PRIORITY])) {
+      this.priority();
+
     } else if (checkArg(this.args[REMOVE_GROUP])) {
       this.removeGroup();
     } else {
@@ -233,6 +236,13 @@ class TodoList {
   }
 
   void move()  {
+    if (!checkArg(this.args[GROUP]) && this.args.rest.isEmpty) {
+      throw ArgParserException('');
+    }
+
+    // O cara pode passar o nome do outro grupo com ou sem o '-g'
+    String newGroupname = checkArg(this.args[GROUP]) ? this.args[GROUP] : this.args.rest.first;
+
     bool found = false;
 
     // Loop sobre todos os grupos
@@ -246,7 +256,7 @@ class TodoList {
           group.tasks.remove(task);
 
           // Adiciona no novo grupo
-          Group newGroup = getOrCreateGroup(this.args[GROUP]);
+          Group newGroup = getOrCreateGroup(newGroupname);
           newGroup.tasks.add(task);
 
           found = true;
@@ -325,7 +335,34 @@ class TodoList {
     }
 
     if (!found) {
-      print(Colorize("\nTarefa '${this.args[REMOVE]}' não encontrada. Talvez tenha sido apagada\n")..lightYellow());
+      print(Colorize("\nTarefa '${this.args.rest.first}' não encontrada. Talvez tenha sido apagada\n")..lightYellow());
+    }
+
+    list();
+  }
+
+  void priority() {
+    if (this.args.rest.isEmpty) {
+      throw ArgParserException('Informe o id da tarefa que deseja alterar');
+    }
+
+    var tlatePrior = { 'urg': 1, 'med': 2, 'low': 3 };
+    bool found = false;
+
+    // Loop sobre todos os grupos
+    for (Group group in this.database.group) {
+      
+      // Procura pela tarefa
+      Task task = group.find(this.args.rest.first);
+      if (task != null) {
+        task.priority = tlatePrior[this.args[PRIORITY]];
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      print(Colorize("\nTarefa '${this.args.rest.first}' não encontrada. Talvez tenha sido apagada\n")..lightYellow());
     }
 
     list();
@@ -356,7 +393,7 @@ class TodoList {
     list();
   }
 
-  void imprimeTarefas(Group group) {
+  void imprimeTarefas(Group group, [bool compact = false]) {
 
     DateFormat df = DateFormat('yyyy-MM-dd H:mm');
     print(Colorize(textCenter(" + ${group.name} + ", maxlen: 70, padding: '-'))..lightBlue());
@@ -424,10 +461,10 @@ class TodoList {
       Colorize priority;
 
       var tlatePrior = { 1: '[URG]', 2: '[MED]', 3: '[LOW]'};
-      Colorize priorityName = Colorize(tlatePrior[task.priority]);
+      Colorize priorityName = Colorize(tlatePrior[task.priority])..bgBlack();
 
       if (task.status == 'done') {
-        priority = Colorize(status)..darkGray();
+        priority = Colorize(status)..bgBlack()..darkGray();
       } else {
         switch (task.priority) {
           case 1:
@@ -447,7 +484,7 @@ class TodoList {
 
       // Prepara descricao e depois printa a tarefa em si
       Colorize desc = Colorize((task.description.isNotEmpty) ? '${task.description}' : '...')..blue();
-      Colorize taskid = Colorize("${task.id}")..lightGray()..bold();
+      Colorize taskid = Colorize("${task.id}")..bgBlack()..lightGray()..bold();
       Colorize title = Colorize("${task.title}")..lightGray();
       Colorize header = Colorize("Em ${df.format(task.created)} por ${task.author}")..darkGray();
       

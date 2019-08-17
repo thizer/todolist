@@ -20,6 +20,9 @@ const DOING = 'doing';
 const DONE = 'done';
 
 const PRIORITY = 'priority';
+const URG = 'urg';
+const MED = 'med';
+const LOW = 'low';
 
 const REMOVE_GROUP = 'rm-group';
 const GROUP_NAME = 'set-groupname';
