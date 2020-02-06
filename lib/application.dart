@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:args/args.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart' as crypto;
 
@@ -47,6 +48,17 @@ bool checkArg(var arg) {
   } else if (arg != null && arg.toString().isNotEmpty) {
     // Outro tipo qualquer, checa se esta vazio (como string)
     result = true;
+  }
+  return result;
+}
+
+bool checkArgInArray(ArgResults arg, List<String> array) {
+  var result = false;
+  for (var item in array) {
+    if (checkArg(arg[item])) {
+      result = true;
+      break;
+    }
   }
   return result;
 }

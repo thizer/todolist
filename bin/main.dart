@@ -50,33 +50,41 @@ void main(List<String> args) {
     if (checkArg(results[ALL])) {
       var args = <String>[];
       args.addAll(['--$LIST', '--$ALL']);
+
       if (results[COMPACT]) {
         args.add('--$COMPACT');
       }
 
       results = parser.parse(args);
+    } else if (!checkArgInArray(results, [ADD, REMOVE, MOVE, NEW, PRIORITY, STATUS])) {
+      args.add('--$LIST');
     }
 
-    if (results[COMPACT]) {
-      // Cria nova lista
-      var newArgs = <String>[];
-      newArgs.addAll(['--$LIST', '--$COMPACT']);
+    // if (results[COMPACT]) {
+    //   // Cria nova lista
+    //   var newArgs = <String>[];
+    //   newArgs.addAll(['--$LIST', '--$COMPACT']);
 
-      // Adiciona parametro --all caso seja necessario
-      if (results[ALL]) {
-        newArgs.add('--$ALL');
-      }
+    //   // Adiciona parametro --all caso seja necessario
+    //   if (results[ALL]) {
+    //     newArgs.add('--$ALL');
+    //   }
 
-      if (results.rest.isNotEmpty) {
-        // Se usuario passou um nome usa como grupo
-        newArgs.addAll(['--$GROUP', results.rest.first]);
-      } else if (checkArg(results[GROUP])) {
-        // Usuario ja tinha informado o grupo (do modo tradicional)
-        newArgs.addAll(['--$GROUP', results[GROUP]]);
-      }
+    //   if (results.rest.isNotEmpty) {
+    //     // Se usuario passou um nome usa como grupo
+    //     newArgs.addAll(['--$GROUP', results.rest.first]);
+    //   } else if (checkArg(results[GROUP])) {
+    //     // Usuario ja tinha informado o grupo (do modo tradicional)
+    //     newArgs.addAll(['--$GROUP', results[GROUP]]);
+    //   }
 
-      results = parser.parse(newArgs);
-    }
+    //   results = parser.parse(newArgs);
+    // }
+
+    // for (var item in results.arguments) {
+    //   print(item);
+    // }
+    // return;
 
     // Alteracao de status
     if (checkArg(results[NEW])) {
