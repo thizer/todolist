@@ -5,7 +5,6 @@ part 'database.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Database {
-
   // Fez alguma alteracao nessa classe?
   // Rode o comando abaixo para atualizar seus correspondentes *.g.dart
   //
@@ -18,7 +17,7 @@ class Database {
   /// Busca um grupo pelo nome [name]
   Group find(String name) {
     Group result;
-    for (Group item in this.group) {
+    for (var item in group) {
       if (item.name == name) {
         result = item;
         break;

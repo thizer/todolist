@@ -30,24 +30,21 @@ const GROUP_NAME = 'set-groupname';
 const JSON_DB = 'set-jsondb';
 
 String getHomePath() {
-  Map<String, String> env = Platform.environment;
+  var env = Platform.environment;
   return env.entries.firstWhere((o) => o.key == 'HOME').value;
 }
 
 String getUsername() {
-  Map<String, String> env = Platform.environment;
+  var env = Platform.environment;
   return env.entries.firstWhere((o) => o.key == 'USER').value;
 }
 
 bool checkArg(var arg) {
-  bool result = false;
+  var result = false;
   if (arg.runtimeType.toString() == 'bool') {
-
     // Ja eh booleano, apenas retorna
     result = arg;
-
   } else if (arg != null && arg.toString().isNotEmpty) {
-
     // Outro tipo qualquer, checa se esta vazio (como string)
     result = true;
   }
@@ -58,19 +55,18 @@ String rndHash(int length) {
   var content = Utf8Encoder().convert(DateTime.now().toIso8601String());
   var md5 = crypto.md5;
   var digest = md5.convert(content);
-  String hash = hex.encode(digest.bytes);
+  var hash = hex.encode(digest.bytes);
 
   return hash.substring(0, length);
 }
 
 String textCenter(String text, {int maxlen = 50, String padding = ' '}) {
-
   // Calcula metade dos caracteres para cada lado
-  int pad = ((maxlen - text.length)/2).floor();
+  var pad = ((maxlen - text.length) / 2).floor();
   if (pad < 0) pad = 0;
 
   // Aplica em ambos os lados
-  String result = "".padLeft(pad, padding)+text+"".padRight(pad, padding);
+  var result = ''.padLeft(pad, padding) + text + ''.padRight(pad, padding);
 
   // Em caso de impares é necessario completar
   return result.padRight(maxlen, padding);
